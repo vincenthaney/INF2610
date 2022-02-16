@@ -1,0 +1,3 @@
+write(3, "ligne de commande attendue : ./processlab n , n = 1, 2 ou 3\n", 60) = 60
+write(3, ": Success\n", 10)             = 10
++++ exited with 1 +++
