@@ -11,84 +11,85 @@
 // TODO
 // Si besoin, ajouter ici les directives d'inclusion
 // -------------------------------------------------
-#include <stdio.h>
+#include <stdlib.h>
 #include <unistd.h>
 #include <sys/wait.h>
 // -------------------------------------------------
 
 void question2( )
 {
-pid_t status;
-pid_t childCount = 0;
+    int nbProcessusEnfants = 0;        
+    int status = 0;                                                                                                                                         
 
-registerProc(0, 0, getpid(), getppid());
-    if(fork()==0)
+    //level 0
+    registerProc(0, 0, getpid(), getppid());
+
+    if (fork() == 0) //level 1.1
     {
-    registerProc(1, 1, getpid(), getppid());
-        if(fork()==0)
-        {   
+        registerProc(1, 1, getpid(), getppid());
+        if (fork() == 0) //level 2.1
+        {
             registerProc(2, 1, getpid(), getppid());
-            _exit(childCount);
+            _exit(1);
         }
-        if(fork()==0)
+        
+        if (fork() == 0) //level 2.2
         {
             registerProc(2, 2, getpid(), getppid());
-            _exit(childCount);
+            _exit(1);
         }
-        if(fork()==0)
-        {   
-            registerProc(2, 3, getpid(), getppid());
-            _exit(childCount);
-        }
-        if(fork()==0)
-        {   
-            registerProc(2, 4, getpid(), getppid());
-            _exit(childCount);
-        }
-        wait(&status);
-        childCount += (status >> 8) + 1;
-        wait(&status);
-        childCount += (status >> 8) + 1;
-        wait(&status);
-        childCount += (status >> 8) + 1;
-        wait(&status);
-        childCount += (status >> 8) + 1;
-        _exit(childCount);
-    }
-    
-    if(fork()==0){
-        registerProc(1, 2, getpid(), getppid());
         
-        if(fork()==0)
-        {   
-            registerProc(2, 5, getpid(), getppid());
-            _exit(childCount);
+        if (fork() == 0) //level 2.3
+        {
+            registerProc(2, 3, getpid(), getppid());
+            _exit(1);
         }
-        if(fork()==0)
-        {   
-            registerProc(2, 6, getpid(), getppid());
-            _exit(childCount);
+        
+        if (fork() == 0) //level 2.4
+        {
+            registerProc(2, 4, getpid(), getppid());
+            _exit(1);
         }
-        if(fork()==0)
-        {   
-            registerProc(2, 7, getpid(), getppid());
-            _exit(childCount);
+        
+        while(wait(&status) > 0) {
+            nbProcessusEnfants += WEXITSTATUS(status);
         }
-        wait(&status);
-        childCount += (status >> 8) + 1;
-        wait(&status);
-        childCount += (status >> 8) + 1;
-        wait(&status);
-        childCount += (status >> 8) + 1;
-        _exit(childCount);
+        _exit(++nbProcessusEnfants);
     }
     
-    wait(&status);
-    childCount += (status >> 8) + 1;
-    wait(&status);
-    childCount += (status >> 8) + 1;
-    printf("%d\n", childCount);
+    
+    if (fork() == 0) // level 1.2
+    {
+        registerProc(1, 2, getpid(), getppid());
+        if (fork() == 0) //level 2.5
+        {
+            registerProc(2, 5, getpid(), getppid());
+            _exit(1);
+        }
+        
+        if (fork() == 0) //level 2.6
+        {
+            registerProc(2, 6, getpid(), getppid());
+            _exit(1);
+        }
+        
+        if (fork() == 0) //level 2.7
+        {
+            registerProc(2, 7, getpid(), getppid());
+            _exit(1);
+        }
+
+        while(wait(&status) > 0) {
+            nbProcessusEnfants += WEXITSTATUS(status);
+        }
+        _exit(++nbProcessusEnfants);
+    }
+
+    while(wait(&status) > 0) {
+        nbProcessusEnfants += WEXITSTATUS(status);
+    }
+    printf("%d\n", nbProcessusEnfants);
     printProcRegistrations();
-    execlp("/usr/bin/ls", "ls","-l" ,NULL);
-    _exit(0);
+    execlp("ls", "ls", "-l", NULL);
 }
+
